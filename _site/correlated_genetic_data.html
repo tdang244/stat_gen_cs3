@@ -130,6 +130,8 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <!--/radix_placeholder_meta_tags-->
   
   <meta name="citation_reference" content="citation_title=From GWAS to function: Using functional genomics to identify the mechanisms underlying complex diseases;citation_volume=11;citation_doi=10.3389/fgene.2020.00424;citation_issn=1664-8021;citation_author=Eddie Cano-Gamez;citation_author=Gosia Trynka"/>
+  <meta name="citation_reference" content="citation_title=New approaches to population stratification in genome-wide association studies;citation_publisher=Nature Publishing Group;citation_volume=11;citation_author=Alkes L Price;citation_author=Noah A Zaitlen;citation_author=David Reich;citation_author=Nick Patterson"/>
+  <meta name="citation_reference" content="citation_title=Spurious correlation explained with examples;citation_author= Mlblevins"/>
   <!--radix_placeholder_rmarkdown_metadata-->
 
   <script type="text/json" id="radix-rmarkdown-metadata">
@@ -2195,9 +2197,10 @@ Characteristics of Genetic Data
 <p>Multiple Testing is the process of carrying out more than one hypothesis test simultaneously. The problem associated with Multiple Testing is the change in the p-value threshold and hence an increase in the number of Type 1 errors (T1E) made. Specifically, if we conduct a single hypothesis test, the probability of making a T1E is equal to our significance level <span class="math inline">\(\alpha\)</span>, which is typically set at 0.05. However, when we do multiple tests, we have more chances to make T1E, and the probability of making at least a T1E increases. For example, if we conduct 20 tests, the probability that we make at least one T1E is</p>
 <p><span class="math display">\[1 - (1 - 0.05)^{20}  \approx  0.6415\]</span></p>
 <p>where <span class="math inline">\(\alpha = 0.05\)</span>, the number of tests <span class="math inline">\(= 20\)</span>, <span class="math inline">\(1 - 0.05\)</span> = the probably of making no T1E in a test. The result <span class="math inline">\(0.6415\)</span> is much greater than what we want <span class="math inline">\(0.05\)</span>.</p>
+<h3 id="methods-to-address-the-problems">Methods to address the problems</h3>
 <p>There are two methods used to correct the p-value threshold for Multiple Testing situations: Bonferroni Correction and the Simulation-based Approach. Bonferroni Correction is a very popular approach in which we obtain our new p-value threshold by dividing our desired alpha, or the desired probability of making a T1E, typically 0.05 by the number of tests we’re conducting. For the Simulation-based Approach, we simulate a null trait, which is a trait that’s not associated with any of the SNPs, using GWAS and record the smallest p- values. Repeat this around 500-1000 times, and our new p-value threshold is the value at the lowest 5th percentile.</p>
 <p>However, since Bonferroni Correction operates under the assumption that all of the SNPs are independent, the p-value threshold determined using this method tends to be very low. Therefore, the Simulation-based Approach is a more reliable method to determine the p-value threshold in the case of LD.</p>
-<h2 id="b.-genetics-data-are-correlated-among-individuals-aka-correlated-columns-in-the-dataset">b. Genetics data are correlated among individuals, aka correlated columns in the dataset</h2>
+<h2 id="b.-genetic-data-are-correlated-among-individuals-aka-correlated-columns-in-the-dataset">b. Genetic data are correlated among individuals, aka correlated columns in the dataset</h2>
 <h3 id="relatedness-concepts">Relatedness Concepts</h3>
 <p>There are two different types of relatedness among the people in the dataset. They are:</p>
 <ul>
@@ -2207,10 +2210,61 @@ Characteristics of Genetic Data
 <h3 id="the-problem">The problem</h3>
 <p>When we use standard techniques, e.g. linear regression, these two types of relatedness confound the analysis, which leads to the underestimation of standard errors. This makes the test statistic bigger (inflated) and, as a result, makes the p-value smaller than it actually is (inflated). When the p-value is inflated, the chance of making T1E increases.</p>
 <p><span class="math display">\[\frac{\text{Estimate}}{\text{Correct SE}} &lt; \frac{\text{Estimate}}{\text{Too small/Underestimated SE}}\]</span></p>
+<p>Or better yet, with a visualization:</p>
+<h4 id="small-test-statistic-large-p-value">Small test statistic → large p-value</h4>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="large_p.png" width="100%" /></p>
+</div>
+<h4 id="large-test-statistic-small-p-value">Large test statistic → small p-value</h4>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="small_p.png" width="100%" /></p>
+</div>
+<h3 id="methods-to-address-the-problem">Methods to address the problem</h3>
+<p>In order to address this problem, we have to consider methods that can infer genetic ancestry in order to stratify the relatedness in the population.</p>
+<blockquote>
+<p><strong>PCA</strong> has been used for a long time to infer population structure in genetic data for a long time.</p>
+</blockquote>
+<h4 id="pros">Pros:</h4>
+<ul>
+<li><p>PCA will correct markers with large differences in allele frequency across ancestral populations</p></li>
+<li><p>Using ancestry-informative markers (AIMs), PCA may predict genetic ancestry and correct for stratification in the absence of genome-wide data. This works because large differences in allele frequency between subpopulations that are genotyped to infer genetic ancestry in new samples have been linked to AIMs.</p></li>
+</ul>
+<h4 id="cons">Cons:</h4>
+<ul>
+<li><p>PCA does not explicitly model family structure or cryptic relatedness, which could inflate test statistics.</p></li>
+<li><p>The population structure is not always reflected by the top primary components. Instead, they may reflect the presence of assay artifacts, long-range linkage disequilibrium, or familial resemblance. These effects can be eliminated by removing related samples, areas of long-range linkage disequilibrium, and low-quality data.</p></li>
+</ul>
+<blockquote>
+<p>Another alternative is to use family-based association test.</p>
+</blockquote>
+<h4 id="pros-1">Pros:</h4>
+<p>Since transmitted and untransmitted alleles share the same genetic ancestry, family-based association tests concentrating on within-family information are immune to stratification.</p>
+<h4 id="cons-1">Cons:</h4>
+<p>However, fully powered statistics for family-based studies must take into account between-family information. This can be addressed by converting between-family information into a rank statistic (rank of association) prior to combining within and between family information, which ensures that both sources of information are resistant to stratification.</p>
+<p>One of the methods that incorporate family-based association tests is Mixed Models, which can model population structure, family structure, and cryptic relatedness. A mixed model is a model that combines both fixed effects and random effects. While fixed effects are variables that are constant across individuals, random effects are variables that have different levels across the population.</p>
+<p>Let’s take a look at an example between GPA and absences. If we just look at the general trend between absence and GPA, we can see that there’s a linear downward trend. However, when we look further into the characteristics of the students, we can see that they are either from high or low-income backgrounds, which confounds the association between GPA and absence. Therefore, in this case, absence is the fixed effect, and income background is the mixed effect.</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="gpa.png" width="100%" /></p>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="gpa_group.png" width="120%" /></p>
+</div>
+<p>Similarly, in genetic data, family structure and cryptic relatedness are random effects. Population structure is arguably the fixed effect, specifically in the paper New approaches to population stratification in genome-wide association studies by Price et al <span class="citation" data-cites="price2010new">(<a href="#ref-price2010new" role="doc-biblioref">Price et al. 2010</a>)</span>, since modeling it as a random effect can result in spurious associations.</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="spurious.png" width="120%" /></p>
+</div>
+<p><span class="citation" data-cites="mlblevins_2015">(<a href="#ref-mlblevins_2015" role="doc-biblioref">Mlblevins 2015</a>)</span></p>
+<p>Add some code here</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
 <div id="ref-image_problem_1" class="csl-entry" role="doc-biblioentry">
 Cano-Gamez, Eddie, and Gosia Trynka. 2020. <span>“From GWAS to Function: Using Functional Genomics to Identify the Mechanisms Underlying Complex Diseases.”</span> <em>Frontiers in Genetics</em> 11. <a href="https://doi.org/10.3389/fgene.2020.00424">https://doi.org/10.3389/fgene.2020.00424</a>.
+</div>
+<div id="ref-mlblevins_2015" class="csl-entry" role="doc-biblioentry">
+Mlblevins. 2015. <span>“Spurious Correlation Explained with Examples.”</span> <em>Psychologenie</em>. <a href="https://psychologenie.com/spurious-correlation-explained-with-examples">https://psychologenie.com/spurious-correlation-explained-with-examples</a>.
+</div>
+<div id="ref-price2010new" class="csl-entry" role="doc-biblioentry">
+Price, Alkes L, Noah A Zaitlen, David Reich, and Nick Patterson. 2010. <span>“New Approaches to Population Stratification in Genome-Wide Association Studies.”</span> <em>Nature Reviews Genetics</em> 11 (7): 459–63.
 </div>
 </div>
 <!--radix_placeholder_article_footer-->

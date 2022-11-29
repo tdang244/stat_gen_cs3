@@ -72,12 +72,14 @@ $$1 - (1 - 0.05)^{20}  \approx  0.6415$$
 
 where $\alpha = 0.05$, the number of tests $= 20$, $1 - 0.05$ = the probably of making no T1E in a test. The result $0.6415$ is much greater than what we want $0.05$. 
 
+### Methods to address the problems
+
 There are two methods used to correct the p-value threshold for Multiple Testing situations: Bonferroni Correction and the Simulation-based Approach. Bonferroni Correction is a very popular approach in which we obtain our new p-value threshold by dividing our desired alpha, or the desired probability of making a T1E, typically 0.05 by the number of tests we're conducting. For the Simulation-based Approach, we simulate a null trait, which is a trait that's not associated with any of the SNPs, using GWAS and record the smallest p- values. Repeat this around 500-1000 times, and our new p-value threshold is the value at the lowest 5th percentile.
 
 However, since Bonferroni Correction operates under the assumption that all of the SNPs are independent, the p-value threshold determined using this method tends to be very low. Therefore, the Simulation-based Approach is a more reliable method to determine the p-value threshold in the case of LD. 
 
 
-## b. Genetics data are correlated among individuals, aka correlated columns in the dataset
+## b. Genetic data are correlated among individuals, aka correlated columns in the dataset
 
 ### Relatedness Concepts
 
@@ -93,7 +95,69 @@ When we use standard techniques, e.g. linear regression, these two types of rela
 
 $$\frac{\text{Estimate}}{\text{Correct SE}} < \frac{\text{Estimate}}{\text{Too small/Underestimated SE}}$$
 
+Or better yet, with a visualization: 
+
+#### Small test statistic → large p-value
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("large_p.png")
+```
+
+#### Large test statistic → small p-value
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("small_p.png")
+```
+
+### Methods to address the problem
+
+In order to address this problem, we have to consider methods that can infer genetic ancestry in order to stratify the relatedness in the population. 
+
+> **PCA** has been used for a long time to infer population structure in genetic data for a long time. 
+
+#### Pros: 
+
+- PCA will correct markers with large differences in allele frequency across ancestral populations
+
+- Using ancestry-informative markers (AIMs), PCA may predict genetic ancestry and correct for stratification in the absence of genome-wide data. This works because large differences in allele frequency between subpopulations that are genotyped to infer genetic ancestry in new samples have been linked to AIMs. 
+
+#### Cons:
+
+- PCA does not explicitly model family structure or cryptic relatedness, which could inflate test statistics.
+
+- The population structure is not always reflected by the top primary components. Instead, they may reflect the presence of assay artifacts, long-range linkage disequilibrium, or familial resemblance. These effects can be eliminated by removing related samples, areas of long-range linkage disequilibrium, and low-quality data.
+
+> Another alternative is to use family-based association test.
+
+#### Pros:
+
+Since transmitted and untransmitted alleles share the same genetic ancestry, family-based association tests concentrating on within-family information are immune to stratification. 
+
+#### Cons:
+
+However, fully powered statistics for family-based studies must take into account between-family information. This can be addressed by converting between-family information into a rank statistic (rank of association) prior to combining within and between family information, which ensures that both sources of information are resistant to stratification.
+
+One of the methods that incorporate family-based association tests is Mixed Models, which can model population structure, family structure, and cryptic relatedness. A mixed model is a model that combines both fixed effects and random effects. While fixed effects are variables that are constant across individuals, random effects are variables that have different levels across the population. 
+
+Let’s take a look at an example between GPA and absences. If we just look at the general trend between absence and GPA, we can see that there’s a linear downward trend. However, when we look further into the characteristics of the students, we can see that they are either from high or low-income backgrounds, which confounds the association between GPA and absence. Therefore, in this case, absence is the fixed effect, and income background is the mixed effect. 
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("gpa.png")
+```
+
+```{r, echo=FALSE, out.width = '120%'}
+knitr::include_graphics("gpa_group.png")
+```
 
 
+Similarly, in genetic data, family structure and cryptic relatedness are random effects. Population structure is arguably the fixed effect, specifically in the paper New approaches to population stratification in genome-wide association studies by Price et al [@price2010new], since modeling it as a random effect can result in spurious associations. 
 
 
+```{r, echo=FALSE, out.width = '120%'}
+knitr::include_graphics("spurious.png")
+```
+
+[@mlblevins_2015]
+
+
+Add some code here
