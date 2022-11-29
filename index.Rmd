@@ -1,0 +1,25 @@
+---
+title: "Content Summary 3: Correlation and Sparsity in Genetic Data, as well as Ethical Issues in GWAS"
+description: |
+  By Thu Dang
+  
+  To Kelsey: I try to make this as aesthetic as possible, and I hope you like it!
+  
+site: distill::distill_website
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# Learn more about creating websites with Distill at:
+# https://rstudio.github.io/distill/website.html
+
+```
+
+Throughout our journey together, you’ve probably realized that genetics data are enormous and complicated. Today, we’re going to explore two other characteristics that researchers usually encounter in Genome-wide Association Studies (GWAS): 
+
+- Genetic data are correlated
+
+- Genetic data are sparse
+
+We will also touch on some ethic issues that arise while carrying out GWAS research. This lesson will help you explore each of these two topics one by one. Click on the section of interest on the menu bar to get started!
