@@ -2139,8 +2139,10 @@ Characteristics of Genetic Data
 </button>
 <div class="nav-dropdown-content">
 <a href="correlated_genetic_data.html">Genetic Data are Correlated</a>
+<a href="sparse_genetic_data.html">Genetic Data are Sparse</a>
 </div>
 </div>
+<a href="ethics.html">Ethics in GWAS</a>
 <a href="javascript:void(0);" class="nav-toggle">&#9776;</a>
 </div>
 </nav>
@@ -2163,7 +2165,7 @@ Characteristics of Genetic Data
 <h2 id="a.-genetic-data-are-correlated-among-single-nucleotide-polymorphisms-snps-aka-correlated-columns-in-the-dataset">a. Genetic data are correlated among Single nucleotide polymorphisms (SNPs), aka correlated columns in the dataset</h2>
 <p>First, a recap: SNP is a genetic variation in the DNA that occurs at a single base location. The influence of SNPs on attributes including health conditions, diseases, and treatment responses is a topic of research for scientists. In genetic data, a SNP variable has 3 values: 0 = homozygous dominant alleles, 1 = heterozygous alleles (1 major and 1 minor), 2 = homozygous minor alleles</p>
 <div class="layout-chunk" data-layout="l-body">
-<p><img src="snp.png" width="80%" /></p>
+<p><img src="snp.png" width="50%" /></p>
 </div>
 <p>The closer SNPs are in terms of distance, the more correlated they are with one another. This concept is called Linkage Disequilibrium (LD). LD is represented in the heatmap below, which shows the squared correlation between SNP pairs in European Americans from the HapMap dataset. Since the orange shades show the highest correlation, we see that these shades lie up along the diagonal line, representing the location of pairs of SNPs that neighbor to one another.</p>
 <div class="layout-chunk" data-layout="l-body">
@@ -2241,21 +2243,174 @@ Characteristics of Genetic Data
 <p>Since transmitted and untransmitted alleles share the same genetic ancestry, family-based association tests concentrating on within-family information are immune to stratification.</p>
 <h4 id="cons-1">Cons:</h4>
 <p>However, fully powered statistics for family-based studies must take into account between-family information. This can be addressed by converting between-family information into a rank statistic (rank of association) prior to combining within and between family information, which ensures that both sources of information are resistant to stratification.</p>
+<h3 id="linear-mixed-model">Linear Mixed Model</h3>
 <p>One of the methods that incorporate family-based association tests is Mixed Models, which can model population structure, family structure, and cryptic relatedness. A mixed model is a model that combines both fixed effects and random effects. While fixed effects are variables that are constant across individuals, random effects are variables that have different levels across the population.</p>
-<p>Let’s take a look at an example between GPA and absences. If we just look at the general trend between absence and GPA, we can see that there’s a linear downward trend. However, when we look further into the characteristics of the students, we can see that they are either from high or low-income backgrounds, which confounds the association between GPA and absence. Therefore, in this case, absence is the fixed effect, and income background is the mixed effect.</p>
+<p>Let’s take a look at an example between GPA and absences. If we just look at the general trend between absence and GPA, we can see that there’s a linear downward trend. However, when we look further into the characteristics of the students, we can see that they are either from high or low-income backgrounds, which confounds the association between GPA and absence. Therefore, in this case, absence is the fixed effect, and income background is the random effect.</p>
 <div class="layout-chunk" data-layout="l-body">
 <p><img src="gpa.png" width="100%" /></p>
 </div>
 <div class="layout-chunk" data-layout="l-body">
-<p><img src="gpa_group.png" width="120%" /></p>
+<p><img src="gpa_group.jpeg" width="120%" /></p>
 </div>
 <p>Similarly, in genetic data, family structure and cryptic relatedness are random effects. Population structure is arguably the fixed effect, specifically in the paper New approaches to population stratification in genome-wide association studies by Price et al <span class="citation" data-cites="price2010new">(<a href="#ref-price2010new" role="doc-biblioref">Price et al. 2010</a>)</span>, since modeling it as a random effect can result in spurious associations.</p>
 <div class="layout-chunk" data-layout="l-body">
 <p><img src="spurious.png" width="120%" /></p>
 </div>
 <p><span class="citation" data-cites="mlblevins_2015">(<a href="#ref-mlblevins_2015" role="doc-biblioref">Mlblevins 2015</a>)</span></p>
-<p>Add some code here</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<h4 id="example-of-linear-mixed-model">Example of Linear Mixed Model</h4>
+<p>In order to demonstrate the Linear Mixed Model, let’s explore a <em>real</em> example: Data on Dragons. Our objective in this analysis is to model <code>testScore</code> based on other variables like <code>bodyLength</code> and <code>mountainRange</code>. This example is available at <a href="https://ourcodingclub.github.io/tutorials/mixed-models/" class="uri">https://ourcodingclub.github.io/tutorials/mixed-models/</a>.</p>
+<p>Let’s take a look at the data</p>
+<div class="layout-chunk" data-layout="l-body">
+<pre><code>  testScore bodyLength mountainRange  X site
+1 16.147309   165.5485      Bavarian NA    a
+2 33.886183   167.5593      Bavarian NA    a
+3  6.038333   165.8830      Bavarian NA    a
+4 18.838821   167.6855      Bavarian NA    a
+5 33.862328   169.9597      Bavarian NA    a
+6 47.043246   168.6887      Bavarian NA    a</code></pre>
+</div>
+<p>First, we fit a basic linear model using the scaled <code>bodyLength</code> variable, denoted by <code>bodyLength2</code>, to model <code>testScore</code>. Let’s go!</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='co'># Scale the bodyLength variable</span></span>
+<span><span class='va'>dragons</span><span class='op'>$</span><span class='va'>bodyLength2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/scale.html'>scale</a></span><span class='op'>(</span><span class='va'>dragons</span><span class='op'>$</span><span class='va'>bodyLength</span>, center <span class='op'>=</span> <span class='cn'>TRUE</span>, scale <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span></span>
+<span><span class='co'># Fit a linear model between bodyLength and testScore</span></span>
+<span><span class='va'>basic.lm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span><span class='op'>(</span><span class='va'>testScore</span> <span class='op'>~</span> <span class='va'>bodyLength2</span>, data <span class='op'>=</span> <span class='va'>dragons</span><span class='op'>)</span></span>
+<span><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>basic.lm</span><span class='op'>)</span></span></code></pre>
+</div>
+<pre><code>
+Call:
+lm(formula = testScore ~ bodyLength2, data = dragons)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-56.962 -16.411  -0.783  15.193  55.200 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  50.3860     0.9676  52.072   &lt;2e-16 ***
+bodyLength2   8.9956     0.9686   9.287   &lt;2e-16 ***
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+Residual standard error: 21.2 on 478 degrees of freedom
+Multiple R-squared:  0.1529,    Adjusted R-squared:  0.1511 
+F-statistic: 86.25 on 1 and 478 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<p>Using ggplot, we can obtain a sneak peek of what the linear line looks like. How exciting!</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="correlated_genetic_data_files/figure-html5/unnamed-chunk-14-1.png" width="624" /></p>
+</div>
+<p>From this plot, we may conclude that dragons with longer body are more intelligent.</p>
+<p>But if we take a minute to think about it, that’s a bit off intuitively: how long the dragons are should not effect their intelligence, just as how a person’s height shouldn’t have anything to do with their intellegence. <em>Then, what’s happening here?</em></p>
+<p>In order to investigate further, let’s color the above graph with the <code>mountainRange</code> variable.</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="correlated_genetic_data_files/figure-html5/unnamed-chunk-15-1.png" width="624" /></p>
+</div>
+<p>Oh wow, can you see that? If you look closely at different mountain ranges, the trend between dragons’ body length and intellgence, measured by the <code>testScore</code> variable, seems very random. This shows that the observations from different mountain ranges are not independent. In other words, we cannot analyze the observations in different mountain ranges together since data in the same mountain ranges are likely to be correlated with one another.</p>
+<p>We can investigate that by looking at the trend in the data by mountain range, as shown in the following graph</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="correlated_genetic_data_files/figure-html5/unnamed-chunk-16-1.png" width="624" /></p>
+</div>
+<p>This confirms our hypothesis that there are no clear trend between dragon’s body length and test score.</p>
+<p>Let’s look further into the modelling process, specifically comparing the coefficients between the normal linear regression vs. the Linear Mixed Model.</p>
+<h4 id="linear-regression-between-dragons-body-length-and-test-score">Linear Regression between Dragon’s Body Length and Test Score</h4>
+<div class="layout-chunk" data-layout="l-body">
+<pre><code>
+Call:
+lm(formula = testScore ~ bodyLength2, data = dragons)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-56.962 -16.411  -0.783  15.193  55.200 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  50.3860     0.9676  52.072   &lt;2e-16 ***
+bodyLength2   8.9956     0.9686   9.287   &lt;2e-16 ***
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+Residual standard error: 21.2 on 478 degrees of freedom
+Multiple R-squared:  0.1529,    Adjusted R-squared:  0.1511 
+F-statistic: 86.25 on 1 and 478 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<p>Since the <code>bodyLength</code> variable has a p-value &lt; 0.05, there seems to be an association between body length and test score. However, if we add the <code>mountainRange</code> variable, we’ll see a change in the significance of the <code>bodyLength</code> variable.</p>
+<div class="layout-chunk" data-layout="l-body">
+<pre><code>
+Call:
+lm(formula = testScore ~ bodyLength2 + mountainRange, data = dragons)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-52.263  -9.926   0.361   9.994  44.488 
+
+Coefficients:
+                      Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)            23.3818     2.5792   9.065  &lt; 2e-16 ***
+bodyLength2             0.2055     1.2927   0.159  0.87379    
+mountainRangeCentral   36.5828     3.5993  10.164  &lt; 2e-16 ***
+mountainRangeEmmental  16.2092     3.6966   4.385 1.43e-05 ***
+mountainRangeJulian    45.1147     4.1901  10.767  &lt; 2e-16 ***
+mountainRangeLigurian  17.7478     3.6736   4.831 1.84e-06 ***
+mountainRangeMaritime  49.8813     3.1392  15.890  &lt; 2e-16 ***
+mountainRangeSarntal   41.9784     3.1972  13.130  &lt; 2e-16 ***
+mountainRangeSouthern   8.5196     2.7313   3.119  0.00192 ** 
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+Residual standard error: 14.96 on 471 degrees of freedom
+Multiple R-squared:  0.5843,    Adjusted R-squared:  0.5773 
+F-statistic: 82.76 on 8 and 471 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<p>Now, when we look at the coefficient for the <code>bodyLength</code> variable, <code>bodyLength</code> is not significant. However, the coefficients for the mountain ranges are significant. This means that <code>mountainRange</code> is a good predictor of test scores, meaning that test scores vary across the different mountain ranges. Therefore, we can see that being on different mountain ranges is a <strong>random factor</strong> and hence it has a <strong>random effect</strong>. As a result, we must control it in order to come to an accurate conclusion for the association between the dragon’s body length and test score.</p>
+<p><strong>This is where Linear Mixed Model comes into play!</strong></p>
+<p>In order to implement this method, we have to install the <code>lme4</code> library.</p>
+<div class="layout-chunk" data-layout="l-body">
+
+</div>
+<p>In the following model, our question is <strong>What is the effect of the Dragon’s body length on test score after we control for mountain range?</strong> We use the syntax <code>(1|mountainRange)</code> to signal that we want to control for the random effect <code>mountainRange</code></p>
+<div class="layout-chunk" data-layout="l-body">
+<pre><code>Linear mixed model fit by REML [&#39;lmerMod&#39;]
+Formula: testScore ~ bodyLength2 + (1 | mountainRange)
+   Data: dragons
+
+REML criterion at convergence: 3985.6
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.4815 -0.6513  0.0066  0.6685  2.9583 
+
+Random effects:
+ Groups        Name        Variance Std.Dev.
+ mountainRange (Intercept) 339.7    18.43   
+ Residual                  223.8    14.96   
+Number of obs: 480, groups:  mountainRange, 8
+
+Fixed effects:
+            Estimate Std. Error t value
+(Intercept)  50.3860     6.5517   7.690
+bodyLength2   0.5377     1.2750   0.422
+
+Correlation of Fixed Effects:
+            (Intr)
+bodyLength2 0.000 </code></pre>
+</div>
+<p>For the <strong>Random effects</strong> section, it shows the amount of variance that’s captured by the <code>mountainRange</code> variable and the residual variance that’s not explained by <code>mountainRange</code> and <code>bodyLength</code>. In order to find out how much left-over variance in the Dragon’s test scores after accounting for <code>bodyLength</code> is explained by the <code>mountainRange</code> variable, we can divide the variance for <code>mountainRange</code> by total variance:</p>
+<div class="layout-chunk" data-layout="l-body">
+<pre><code>[1] 0.6028394</code></pre>
+</div>
+<p>It turns out that <code>mountainRange</code> explains around 60% of the left-over variance in the Dragon’s test scores, which is the variance remained after being explained by our fixed effect <code>bodyLength</code>. That’s a lot!</p>
+<p>Now, we can look at the <strong>Fixed effects</strong> section. Since the p-value for the <code>bodyLength</code> coefficient is 0.422 &gt; 0.05, we can conclude that there is no association between <code>bodyLength</code> and <code>testScore</code>.</p>
+<p>We can look at the residual plot for the Linear Mixed Model in order to check our assumption.</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="correlated_genetic_data_files/figure-html5/unnamed-chunk-22-1.png" width="624" /></p>
+</div>
+<p>Since the residuals contain no clear patterns, we can safely conclude that the Linear Mixed Model that we fitted is sufficient to investigate this dataset.</p>
+<h2 id="c.-conclusion">c. Conclusion</h2>
+<p>To generalize it back to the GWAS context, we can account for family and cryptic relatedness as random effects and population structure as a fixed effect in the genetic data using Linear Mixed Model.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
 <div id="ref-image_problem_1" class="csl-entry" role="doc-biblioentry">
 Cano-Gamez, Eddie, and Gosia Trynka. 2020. <span>“From GWAS to Function: Using Functional Genomics to Identify the Mechanisms Underlying Complex Diseases.”</span> <em>Frontiers in Genetics</em> 11. <a href="https://doi.org/10.3389/fgene.2020.00424">https://doi.org/10.3389/fgene.2020.00424</a>.

@@ -86,31 +86,55 @@ code span.vs { color: #20794d; } /* VerbatimString */
 code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 </style>
 
+<style>
+  div.csl-bib-body { }
+  div.csl-entry {
+    clear: both;
+    }
+  .hanging div.csl-entry {
+    margin-left:2em;
+    text-indent:-2em;
+  }
+  div.csl-left-margin {
+    min-width:2em;
+    float:left;
+  }
+  div.csl-right-inline {
+    margin-left:2em;
+    padding-left:1em;
+  }
+  div.csl-indent {
+    margin-left: 2em;
+  }
+</style>
 
   <!--radix_placeholder_meta_tags-->
-  <title>Content Summary 3: Content Summary 3: Correlation and Sparsity in Genetic Data, as well as Ethical Issues in GWAS</title>
+  <title>Content Summary 3: Characteristics of Genetic Data</title>
 
-  <meta property="description" itemprop="description" content="By Thu Dang&#10;&#10;To Kelsey: I try to make this as aesthetic as possible, and I hope you like it!"/>
+  <meta property="description" itemprop="description" content="In this section, we&#39;ll touch on the problems associated with genetic data being correlated and sparse, and then get to know some methods to resolve them."/>
 
 
 
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
-  <meta property="og:title" content="Content Summary 3: Content Summary 3: Correlation and Sparsity in Genetic Data, as well as Ethical Issues in GWAS"/>
+  <meta property="og:title" content="Content Summary 3: Characteristics of Genetic Data"/>
   <meta property="og:type" content="article"/>
-  <meta property="og:description" content="By Thu Dang&#10;&#10;To Kelsey: I try to make this as aesthetic as possible, and I hope you like it!"/>
+  <meta property="og:description" content="In this section, we&#39;ll touch on the problems associated with genetic data being correlated and sparse, and then get to know some methods to resolve them."/>
   <meta property="og:locale" content="en_US"/>
   <meta property="og:site_name" content="Content Summary 3"/>
 
   <!--  https://dev.twitter.com/cards/types/summary -->
   <meta property="twitter:card" content="summary"/>
-  <meta property="twitter:title" content="Content Summary 3: Content Summary 3: Correlation and Sparsity in Genetic Data, as well as Ethical Issues in GWAS"/>
-  <meta property="twitter:description" content="By Thu Dang&#10;&#10;To Kelsey: I try to make this as aesthetic as possible, and I hope you like it!"/>
+  <meta property="twitter:title" content="Content Summary 3: Characteristics of Genetic Data"/>
+  <meta property="twitter:description" content="In this section, we&#39;ll touch on the problems associated with genetic data being correlated and sparse, and then get to know some methods to resolve them."/>
 
   <!--/radix_placeholder_meta_tags-->
+  
+  <meta name="citation_reference" content="citation_title=The effect of an extreme and prolonged population bottleneck on patterns of deleterious variation: Insights from the greenlandic inuit;citation_author=Niels Grarup Casper-Emil Tingskov Pedersen"/>
+  <meta name="citation_reference" content="citation_title=Genetic association analysis;citation_author=Clement Ma"/>
   <!--radix_placeholder_rmarkdown_metadata-->
 
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","site"]}},"value":[{"type":"character","attributes":{},"value":["Content Summary 3: Correlation and Sparsity in Genetic Data, as well as Ethical Issues in GWAS"]},{"type":"character","attributes":{},"value":["By Thu Dang\n\nTo Kelsey: I try to make this as aesthetic as possible, and I hope you like it!\n"]},{"type":"character","attributes":{},"value":["distill::distill_website"]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","bibliography"]}},"value":[{"type":"character","attributes":{},"value":["Characteristics of Genetic Data"]},{"type":"character","attributes":{},"value":["In this section, we'll touch on the problems associated with genetic data being correlated and sparse, and then get to know some methods to resolve them. \n"]},{"type":"character","attributes":{},"value":["Library.bib"]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   <!--radix_placeholder_navigation_in_header-->
@@ -2094,7 +2118,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"Content Summary 3: Correlation and Sparsity in Genetic Data, as well as Ethical Issues in GWAS","description":"By Thu Dang\n\nTo Kelsey: I try to make this as aesthetic as possible, and I hope you like it!","authors":[]}
+{"title":"Characteristics of Genetic Data","description":"In this section, we'll touch on the problems associated with genetic data being correlated and sparse, and then get to know some methods to resolve them.","authors":[]}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -2127,22 +2151,37 @@ Characteristics of Genetic Data
 <!--/radix_placeholder_site_before_body-->
 
 <div class="d-title">
-<h1>Content Summary 3: Correlation and Sparsity in Genetic Data, as well as Ethical Issues in GWAS</h1>
+<h1>Characteristics of Genetic Data</h1>
 <!--radix_placeholder_categories-->
 <!--/radix_placeholder_categories-->
-<p><p>By Thu Dang</p>
-<p>To Kelsey: I try to make this as aesthetic as possible, and I hope you like it!</p></p>
+<p><p>In this section, we’ll touch on the problems associated with genetic data being correlated and sparse, and then get to know some methods to resolve them.</p></p>
 </div>
 
 
 <div class="d-article">
-<p>Throughout our journey together, you’ve probably realized that genetics data are enormous and complicated. Today, we’re going to explore two other characteristics that researchers usually encounter in Genome-wide Association Studies (GWAS):</p>
-<ul>
-<li><p>Genetic data are correlated</p></li>
-<li><p>Genetic data are sparse</p></li>
-</ul>
-<p>We will also touch on some ethic issues that arise while carrying out GWAS research. This lesson will help you explore each of these two topics one by one. Click on the section of interest on the menu bar to get started!</p>
+<h1 id="genetic-data-are-sparse">2. Genetic data are sparse</h1>
+<h2 id="the-problem">The problem</h2>
+<p>Genetic data contain a lot of zeroes! This is due to the fact that there are many rare genetic variants.</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="sparse.png" width="120%" /></p>
+</div>
+<p>In this graph <span class="citation" data-cites="rare_variant">(<a href="#ref-rare_variant" role="doc-biblioref">Casper-Emil Tingskov Pedersen 2016</a>)</span>, we can see that the density of alleles differs across different populations. Specifically, we have to sample data from a lot of populations in order to increase the chance of obtaining the genetic variants of interest. This process can be time-consuming and expensive, and the analysis can be computationally-extensive with a huge amount of data.
+Since a lot of the currently available methods do not perform well on rare variants, this poses challenges to potential analysis, resulting in lower power or more T1Es in certain settings.</p>
+<h2 id="methods-to-address-the-problems">Methods to address the problems</h2>
+<p>One of the proposed solutions is to combine information across genes and analyze that combined information together with the trait of interest.</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="burden_test.png" width="120%" /></p>
+</div>
+<p><span class="citation" data-cites="burden_test">(<a href="#ref-burden_test" role="doc-biblioref">Ma 2015</a>)</span></p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
+<div id="ref-rare_variant" class="csl-entry" role="doc-biblioentry">
+Casper-Emil Tingskov Pedersen, Niels Grarup, Kirk E Lohmueller. 2016. <span>“The Effect of an Extreme and Prolonged Population Bottleneck on Patterns of Deleterious Variation: Insights from the Greenlandic Inuit.”</span> <a href="https://www.researchgate.net/publication/311348232_The_Effect_of_an_Extreme_and_Prolonged_Population_Bottleneck_on_Patterns_of_Deleterious_Variation_Insights_from_the_Greenlandic_Inuit">https://www.researchgate.net/publication/311348232_The_Effect_of_an_Extreme_and_Prolonged_Population_Bottleneck_on_Patterns_of_Deleterious_Variation_Insights_from_the_Greenlandic_Inuit</a>.
+</div>
+<div id="ref-burden_test" class="csl-entry" role="doc-biblioentry">
+Ma, Clement. 2015. <span>“Genetic Association Analysis.”</span><a href=" https://slideplayer.com/slide/13370408/"> https://slideplayer.com/slide/13370408/</a>.
+</div>
+</div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>
@@ -2154,7 +2193,10 @@ Characteristics of Genetic Data
 <!--radix_placeholder_site_after_body-->
 <!--/radix_placeholder_site_after_body-->
 <!--radix_placeholder_appendices-->
-<div class="appendix-bottom"></div>
+<div class="appendix-bottom">
+<h3 id="references">References</h3>
+<div id="references-listing"></div>
+</div>
 <!--/radix_placeholder_appendices-->
 <!--radix_placeholder_navigation_after_body-->
 <!--/radix_placeholder_navigation_after_body-->

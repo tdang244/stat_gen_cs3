@@ -17,7 +17,7 @@ The first question we need to ask ourselves is: What does it mean to say that ge
 
 First, a recap: SNP is a genetic variation in the DNA that occurs at a single base location. The influence of SNPs on attributes including health conditions, diseases, and treatment responses is a topic of research for scientists. In genetic data, a SNP variable has 3 values: 0 = homozygous dominant alleles, 1 = heterozygous alleles (1 major and 1 minor), 2 = homozygous minor alleles
 
-```{r, echo=FALSE, out.width = '80%'}
+```{r, echo=FALSE, out.width = '50%'}
 knitr::include_graphics("snp.png")
 ```
 
@@ -137,16 +137,18 @@ Since transmitted and untransmitted alleles share the same genetic ancestry, fam
 
 However, fully powered statistics for family-based studies must take into account between-family information. This can be addressed by converting between-family information into a rank statistic (rank of association) prior to combining within and between family information, which ensures that both sources of information are resistant to stratification.
 
+### Linear Mixed Model
+
 One of the methods that incorporate family-based association tests is Mixed Models, which can model population structure, family structure, and cryptic relatedness. A mixed model is a model that combines both fixed effects and random effects. While fixed effects are variables that are constant across individuals, random effects are variables that have different levels across the population. 
 
-Let’s take a look at an example between GPA and absences. If we just look at the general trend between absence and GPA, we can see that there’s a linear downward trend. However, when we look further into the characteristics of the students, we can see that they are either from high or low-income backgrounds, which confounds the association between GPA and absence. Therefore, in this case, absence is the fixed effect, and income background is the mixed effect. 
+Let’s take a look at an example between GPA and absences. If we just look at the general trend between absence and GPA, we can see that there’s a linear downward trend. However, when we look further into the characteristics of the students, we can see that they are either from high or low-income backgrounds, which confounds the association between GPA and absence. Therefore, in this case, absence is the fixed effect, and income background is the random effect. 
 
 ```{r, echo=FALSE, out.width = '100%'}
 knitr::include_graphics("gpa.png")
 ```
 
 ```{r, echo=FALSE, out.width = '120%'}
-knitr::include_graphics("gpa_group.png")
+knitr::include_graphics("gpa_group.jpeg")
 ```
 
 
@@ -159,5 +161,122 @@ knitr::include_graphics("spurious.png")
 
 [@mlblevins_2015]
 
+#### Example of Linear Mixed Model
 
-Add some code here
+In order to demonstrate the Linear Mixed Model, let's explore a *real* example: Data on Dragons. Our objective in this analysis is to model `testScore` based on other variables like `bodyLength` and `mountainRange`. This example is available at https://ourcodingclub.github.io/tutorials/mixed-models/.
+
+Let's take a look at the data
+
+```{r}
+load("dragons.RData")
+head(dragons)
+```
+
+First, we fit a basic linear model using the scaled `bodyLength` variable, denoted by `bodyLength2`, to model `testScore`. Let's go!
+
+```{r, echo = TRUE}
+# Scale the bodyLength variable
+dragons$bodyLength2 <- scale(dragons$bodyLength, center = TRUE, scale = TRUE)
+
+# Fit a linear model between bodyLength and testScore
+basic.lm <- lm(testScore ~ bodyLength2, data = dragons)
+summary(basic.lm)
+```
+
+Using ggplot, we can obtain a sneak peek of what the linear line looks like. How exciting!
+
+```{r, warning=FALSE}
+library(tidyverse)  # load the package containing both ggplot2 and dplyr
+
+ggplot(dragons, aes(x = bodyLength, y = testScore)) +
+  geom_point() +
+  geom_smooth(method = "lm") + 
+  xlab("Dragon's Body Length") + 
+  ylab("Test Score") +
+  theme_classic()
+```
+
+From this plot, we may conclude that dragons with longer body are more intelligent. 
+
+But if we take a minute to think about it, that's a bit off intuitively: how long the dragons are should not effect their intelligence, just as how a person's height shouldn't have anything to do with their intellegence. *Then, what's happening here?* 
+
+In order to investigate further, let's color the above graph with the `mountainRange` variable. 
+
+```{r}
+ggplot(dragons, aes(x = bodyLength, y = testScore, colour = mountainRange)) +
+  geom_point(size = 2) +
+  xlab("Dragon's Body Length") + 
+  ylab("Test Score") +
+  theme_classic() +
+  theme(legend.position = "none") 
+```
+
+Oh wow, can you see that? If you look closely at different mountain ranges, the trend between dragons' body length and intellgence, measured by the `testScore` variable, seems very random. This shows that the observations from different mountain ranges are not independent. In other words, we cannot analyze the observations in different mountain ranges together since data in the same mountain ranges are likely to be correlated with one another. 
+
+We can investigate that by looking at the trend in the data by mountain range, as shown in the following graph
+
+```{r}
+ggplot(aes(bodyLength, testScore), data = dragons) + 
+  geom_point() + 
+  facet_wrap(~ mountainRange) + # create a facet for each mountain range
+  xlab("Dragon's Body Length") + 
+  ylab("Test Score")
+```
+
+This confirms our hypothesis that there are no clear trend between dragon's body length and test score. 
+
+Let's look further into the modelling process, specifically comparing the coefficients between the normal linear regression vs. the Linear Mixed Model. 
+
+#### Linear Regression between Dragon's Body Length and Test Score
+
+```{r}
+m1 <- lm(testScore ~ bodyLength2, data = dragons)
+summary(m1)
+```
+
+Since the `bodyLength` variable has a p-value < 0.05, there seems to be an association between body length and test score. However, if we add the `mountainRange` variable, we'll see a change in the significance of the `bodyLength` variable.
+
+
+```{r}
+m2 <- lm(testScore ~ bodyLength2 + mountainRange, data = dragons)
+summary(m2)
+```
+
+Now, when we look at the coefficient for the `bodyLength` variable, `bodyLength` is not significant. However, the coefficients for the mountain ranges are significant. This means that `mountainRange` is a good predictor of test scores, meaning that test scores vary across the different mountain ranges. Therefore, we can see that being on different mountain ranges is a **random factor** and hence it has a **random effect**. As a result, we must control it in order to come to an accurate conclusion for the association between the dragon's body length and test score. 
+
+**This is where Linear Mixed Model comes into play!**
+
+In order to implement this method, we have to install the `lme4` library. 
+
+```{r}
+library(lme4)
+```
+
+In the following model, our question is **What is the effect of the Dragon's body length on test score after we control for mountain range?** We use the syntax `(1|mountainRange)` to signal that we want to control for the random effect `mountainRange`
+
+```{r}
+mixed.lmer <- lmer(testScore ~ bodyLength2 + (1|mountainRange), data = dragons)
+summary(mixed.lmer)
+```
+
+For the **Random effects** section, it shows the amount of variance that's captured by the `mountainRange` variable and the residual variance that's not explained by `mountainRange` and `bodyLength`. In order to find out how much left-over variance in the Dragon's test scores after accounting for `bodyLength` is explained by the `mountainRange` variable, we can divide the variance for `mountainRange` by total variance: 
+
+```{r}
+339.7/(339.7 + 223.8) 
+```
+
+It turns out that `mountainRange` explains around 60% of the left-over variance in the Dragon's test scores, which is the variance remained after being explained by our fixed effect `bodyLength`. That's a lot!
+
+Now, we can look at the **Fixed effects** section. Since the p-value for the `bodyLength` coefficient is 0.422 > 0.05, we can conclude that there is no association between `bodyLength` and `testScore`. 
+
+We can look at the residual plot for the Linear Mixed Model in order to check our assumption. 
+
+```{r}
+plot(mixed.lmer)
+```
+
+Since the residuals contain no clear patterns, we can safely conclude that the Linear Mixed Model that we fitted is sufficient to investigate this dataset. 
+
+## c. Conclusion
+
+To generalize it back to the GWAS context, we can account for family and cryptic relatedness as random effects and population structure as a fixed effect in the genetic data using Linear Mixed Model.

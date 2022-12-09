@@ -11,4 +11,8 @@ navbar:
       menu: 
         - text: "Genetic Data are Correlated"
           href: correlated_genetic_data.html
+        - text: "Genetic Data are Sparse"
+          href: sparse_genetic_data.html
+    - text: "Ethics in GWAS"
+      href: ethics.html
 output: distill::distill_article
